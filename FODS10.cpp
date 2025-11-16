@@ -1,16 +1,15 @@
 #include <iostream>
 #include <string>
-#include <sstream>
 using namespace std;
 
-
-class Student{
+class Student {
 public:
     int roll;
     string name;
     bool occupied;
     bool deleted;
-    Student(){
+
+    Student() {
         roll = -1;
         name = "";
         occupied = false;
@@ -18,61 +17,55 @@ public:
     }
 };
 
-
-
-class HashMap{
+class HashMap {
 private:
-    Student table[100];  
+    Student table[100];
 
 public:
-    void insert(int roll, string name){
+    void insert(int roll, string name) {
         int index = roll % 100;
         int start = index;
-       
 
-        while(table[index].occupied || table[index].deleted){
-            if(table[index].occupied && table[index].roll == roll) {
+        while (table[index].occupied || table[index].deleted) {
+            if (table[index].occupied && table[index].roll == roll) {
                 table[index].name = name;
                 return;
             }
-           
-
             index = (index + 1) % 100;
-            if(index == start){
-                cout<<"Hash table full! Cannot insert "<<roll<<endl;
+
+            if (index == start) {
+                cout << "Hash table full! Cannot insert " << roll << endl;
                 return;
             }
         }
-
-
 
         table[index].roll = roll;
         table[index].name = name;
         table[index].occupied = true;
         table[index].deleted = false;
-       
     }
 
-    void search(int roll){
+    void search(int roll) {
         int index = roll % 100;
         int start = index;
 
-        while(table[index].occupied || table[index].deleted){
-            if (table[index].occupied && table[index].roll == roll){
-                cout<<"Roll: "<<roll<<"Name: "<<table[index].name<<endl;
+        while (table[index].occupied || table[index].deleted) {
+            if (table[index].occupied && table[index].roll == roll) {
+                cout << "Roll: " << roll << "   Name: " << table[index].name << endl;
                 return;
             }
             index = (index + 1) % 100;
+
             if (index == start) break;
         }
-        cout<<"Roll "<<roll <<" not found.\n";
+        cout << "Roll " << roll << " not found.\n";
     }
 
-    void remove(int roll){
+    void remove(int roll) {
         int index = roll % 100;
         int start = index;
 
-        while (table[index].occupied || table[index].deleted){
+        while (table[index].occupied || table[index].deleted) {
             if (table[index].occupied && table[index].roll == roll) {
                 table[index].occupied = false;
                 table[index].deleted = true;
@@ -82,120 +75,109 @@ public:
             index = (index + 1) % 100;
             if (index == start) break;
         }
-        cout << "Roll " << roll << " not found for deletion.\n";
+        cout << "Roll " << roll << " not found.\n";
     }
 
-    void display(){
+    void display() {
         bool empty = true;
-        for(int i = 0; i < 100; i++) {
-            if(table[i].occupied) {
-                cout<<"Roll: "<<table[i].roll<<"Name: "<<table[i].name<<endl;
+        for (int i = 0; i < 100; i++) {
+            if (table[i].occupied) {
+                cout << "Roll: " << table[i].roll << "   Name: " << table[i].name << endl;
                 empty = false;
             }
         }
-        if(empty)
+        if (empty)
             cout << "Table is empty\n";
     }
 };
 
+int nameValid(string &name) {
+    if (name.empty()) return 0;
+    if (name[0] == ' ' || name.back() == ' ') return 0;
+    if (!(name[0] >= 'A' && name[0] <= 'Z')) return 0;
 
-int nameValid(string& name){
-    if(name[0]==' ' || name[name.size()-1]==' ') return 0;
-    if(!(name[0]>='A' && name[0]<='Z')) return 0;
-    for(int i=1;i<name.size();i++){
-        if(!((name[i]>='a' && name[i]<='z') || (name[i]>='A' && name[i]<='Z') || (name[i]==' '))) return 0;
-        if(name[i]==' '){
-            if(name[i+1]==' ') return 0;
-            if(!(name[i+1]>='A' && name[i+1]<='Z')) return 0;
+    for (int i = 1; i < name.size(); i++) {
+        char c = name[i];
+
+        if (!(isalpha(c) || c == ' ')) return 0;
+
+        if (c == ' ') {
+            if (i + 1 >= name.size()) return 0;
+            if (name[i + 1] == ' ') return 0;
+            if (!(name[i + 1] >= 'A' && name[i + 1] <= 'Z')) return 0;
         }
-        else{
-            if((name[i+1]>='A' && name[i+1]<='Z')) return 0;
+        else {
+            if (i + 1 < name.size() && (name[i + 1] >= 'A' && name[i + 1] <= 'Z'))
+                return 0;
         }
     }
     return 1;
 }
 
-
-int valueChecker(){
-    int choice;
-    string line;
+int getValidNumber(string message, int minVal, int maxVal) {
+    string s;
     while (true) {
-        cout << "Enter Choice: ";
-        getline(cin, line);
-        stringstream ss(line);
-        if (ss >> choice && ss.eof() && choice >= 1 && choice <= 8) {
-            break;
-        } 
-        else {
-            cout << "Invalid choice! Please enter a number between 1 and 8.\n";
+        cout << message;
+        getline(cin, s);
+
+        bool ok = true;
+
+        if (s.empty()) ok = false;
+
+        for (char c : s) {
+            if (!isdigit(c)) {
+                ok = false;
+                break;
+            }
         }
+
+        if (ok) {
+            long long num = stoll(s);
+            if (num >= minVal && num <= maxVal)
+                return num;
+        }
+
+        cout << "Invalid input! Enter digits only between "
+             << minVal << " and " << maxVal << ".\n";
     }
-    return choice;
 }
 
-int valueCheckerBT(){
-
-    int choice;
-    string line;
-    while (true){
-        getline(cin, line);
-        stringstream ss(line);
-        if (ss >> choice && ss.eof() && choice >= 0 && choice <= 100000000) {
-            break;
-        } 
-        else {
-            cout << "Invalid roll number! Please enter a number between 0 and 10000000.\n";
-        }
-    }
-    return choice;
-}
 
 int main() {
     HashMap h;
     int roll;
     string name;
-    bool flag;
 
-    while (true){
-        cout << "1. Insert Student\n";
+    while (true) {
+        cout << "\n1. Insert Student\n";
         cout << "2. Search Student\n";
         cout << "3. Delete Student\n";
         cout << "4. Display Hash Table\n";
         cout << "5. Exit\n";
 
-        int choice = valueChecker();
+        int choice = getValidNumber("Enter Choice: ", 1, 5);
 
         switch (choice) {
             case 1:
-                cout << "Enter Roll Number: ";
-                roll = valueCheckerBT();
-               
-                
-                flag = true;
-                while(flag){
+                roll = getValidNumber("Enter Roll Number: ", 0, 100000000);
+
+                while (true) {
                     cout << "Enter Name: ";
                     getline(cin, name);
-                    if(nameValid(name)){
-                        flag = false;
-                    }
-                    else{
-                        printf("Name is Entered Wrong, Please try Again.\n");
-                    }
+                    if (nameValid(name)) break;
+                    else cout << "Invalid Name! Try again.\n";
                 }
+
                 h.insert(roll, name);
                 break;
 
             case 2:
-                cout << "Enter Roll Number to Search: ";
-                roll = valueCheckerBT();
-                
-                
+                roll = getValidNumber("Enter Roll Number to Search: ", 0, 100000000);
                 h.search(roll);
                 break;
 
             case 3:
-                cout << "Enter Roll Number to Delete: ";
-                roll = valueCheckerBT();
+                roll = getValidNumber("Enter Roll Number to Delete: ", 0, 100000000);
                 h.remove(roll);
                 break;
 
@@ -204,11 +186,8 @@ int main() {
                 break;
 
             case 5:
-                cout << "Exiting program...\n";
+                cout << "Exiting...\n";
                 return 0;
-
-            default:
-                cout << "Invalid choice! Try again.\n";
         }
     }
 }
