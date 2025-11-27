@@ -17,80 +17,6 @@ public:
     }
 };
 
-class HashMap {
-private:
-    Student table[100];
-
-public:
-    void insert(int roll, string name) {
-        int index = roll % 100;
-        int start = index;
-
-        while (table[index].occupied || table[index].deleted) {
-            if (table[index].occupied && table[index].roll == roll) {
-                table[index].name = name;
-                return;
-            }
-            index = (index + 1) % 100;
-
-            if (index == start) {
-                cout << "Hash table full! Cannot insert " << roll << endl;
-                return;
-            }
-        }
-
-        table[index].roll = roll;
-        table[index].name = name;
-        table[index].occupied = true;
-        table[index].deleted = false;
-    }
-
-    void search(int roll) {
-        int index = roll % 100;
-        int start = index;
-
-        while (table[index].occupied || table[index].deleted) {
-            if (table[index].occupied && table[index].roll == roll) {
-                cout << "Roll: " << roll << "   Name: " << table[index].name << endl;
-                return;
-            }
-            index = (index + 1) % 100;
-
-            if (index == start) break;
-        }
-        cout << "Roll " << roll << " not found.\n";
-    }
-
-    void remove(int roll) {
-        int index = roll % 100;
-        int start = index;
-
-        while (table[index].occupied || table[index].deleted) {
-            if (table[index].occupied && table[index].roll == roll) {
-                table[index].occupied = false;
-                table[index].deleted = true;
-                cout << "Deleted roll " << roll << " from index " << index << endl;
-                return;
-            }
-            index = (index + 1) % 100;
-            if (index == start) break;
-        }
-        cout << "Roll " << roll << " not found.\n";
-    }
-
-    void display() {
-        bool empty = true;
-        for (int i = 0; i < 100; i++) {
-            if (table[i].occupied) {
-                cout << "Roll: " << table[i].roll << "   Name: " << table[i].name << endl;
-                empty = false;
-            }
-        }
-        if (empty)
-            cout << "Table is empty\n";
-    }
-};
-
 int nameValid(string &name) {
     if (name.empty()) return 0;
     if (name[0] == ' ' || name.back() == ' ') return 0;
@@ -113,6 +39,119 @@ int nameValid(string &name) {
     }
     return 1;
 }
+
+class HashMap {
+private:
+    Student table[100];
+
+public:
+
+    void insert(int roll, string name) {
+        int index = roll % 100;
+        int start = index;
+        int firstDeleted = -1;
+
+        while (table[index].occupied || table[index].deleted) {
+            if (table[index].occupied && table[index].roll == roll) {
+                cout << "Roll number already exists! Insert failed.\n";
+                return;
+            }
+
+            if (table[index].deleted && firstDeleted == -1)
+                firstDeleted = index;
+
+            index = (index + 1) % 100;
+            if (index == start) break;
+        }
+
+        if (firstDeleted != -1)
+            index = firstDeleted;
+
+        table[index].roll = roll;
+        table[index].name = name;
+        table[index].occupied = true;
+        table[index].deleted = false;
+    }
+
+    void search(int roll) {
+        int index = roll % 100;
+        int start = index;
+
+        while (table[index].occupied || table[index].deleted) {
+
+            if (table[index].occupied && table[index].roll == roll) {
+                cout << "Roll: " << roll << "   Name: " << table[index].name << endl;
+                return;
+            }
+
+            index = (index + 1) % 100;
+            if (index == start) break;
+        }
+
+        cout << "Roll " << roll << " not found.\n";
+    }
+
+    void update(int roll) {
+        int index = roll % 100;
+        int start = index;
+
+        do {
+            if (table[index].occupied && table[index].roll == roll) {
+                string newName;
+
+                while (true) {
+                    cout << "Enter new name: ";
+                    getline(cin, newName);
+                    if (nameValid(newName)) break;
+                    cout << "Invalid Name! Try again.\n";
+                }
+
+                table[index].name = newName;
+                cout << "Updated roll " << roll << " with new name: " << newName << endl;
+                return;
+            }
+
+            index = (index + 1) % 100;
+
+        } while (index != start && (table[index].occupied || table[index].deleted));
+
+        cout << "Roll " << roll << " not found.\n";
+    }
+
+    void remove(int roll) {
+        int index = roll % 100;
+        int start = index;
+
+        while (table[index].occupied || table[index].deleted) {
+
+            if (table[index].occupied && table[index].roll == roll) {
+                table[index].occupied = false;
+                table[index].deleted = true;
+                cout << "Deleted roll " << roll << " from index " << index << endl;
+                return;
+            }
+
+            index = (index + 1) % 100;
+            if (index == start) break;
+        }
+
+        cout << "Roll " << roll << " not found.\n";
+    }
+
+    void display() {
+        bool empty = true;
+        for (int i = 0; i < 100; i++) {
+            if (table[i].occupied) {
+                cout << "[" << i << "] "
+                     << "Roll: " << table[i].roll
+                     << "   Name: " << table[i].name << endl;
+                empty = false;
+            }
+        }
+        if (empty)
+            cout << "Table is empty\n";
+    }
+};
 
 int getValidNumber(string message, int minVal, int maxVal) {
     string s;
@@ -142,7 +181,6 @@ int getValidNumber(string message, int minVal, int maxVal) {
     }
 }
 
-
 int main() {
     HashMap h;
     int roll;
@@ -152,22 +190,21 @@ int main() {
         cout << "\n1. Insert Student\n";
         cout << "2. Search Student\n";
         cout << "3. Delete Student\n";
-        cout << "4. Display Hash Table\n";
-        cout << "5. Exit\n";
+        cout << "4. Update Student\n";
+        cout << "5. Display Hash Table\n";
+        cout << "6. Exit\n";
 
-        int choice = getValidNumber("Enter Choice: ", 1, 5);
+        int choice = getValidNumber("Enter Choice: ", 1, 6);
 
         switch (choice) {
             case 1:
                 roll = getValidNumber("Enter Roll Number: ", 0, 100000000);
-
                 while (true) {
                     cout << "Enter Name: ";
                     getline(cin, name);
                     if (nameValid(name)) break;
                     else cout << "Invalid Name! Try again.\n";
                 }
-
                 h.insert(roll, name);
                 break;
 
@@ -182,10 +219,15 @@ int main() {
                 break;
 
             case 4:
-                h.display();
+                roll = getValidNumber("Enter Roll Number to Update: ", 0, 100000000);
+                h.update(roll);
                 break;
 
             case 5:
+                h.display();
+                break;
+
+            case 6:
                 cout << "Exiting...\n";
                 return 0;
         }
