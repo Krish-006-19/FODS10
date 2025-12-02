@@ -27,23 +27,16 @@ public:
         int index = roll % 100;
         int start = index;
 
-        int firstDeleted = -1; 
-
         while (table[index].occupied) {
             if (table[index].roll == roll) {
                 table[index].name = name;
                 return;
             }
 
-            if (table[index].deleted && firstDeleted == -1)
-                firstDeleted = index;
-
             index = (index + 1) % 100;
 
             if (index == start) break;
         }
-
-        if (firstDeleted != -1) index = firstDeleted;
 
         table[index].roll = roll;
         table[index].name = name;
